@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 
 import './db'; // initializes DB on startup
 import authRoutes from './routes/auth';
@@ -18,9 +19,27 @@ app.use(
 );
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/phones', phonesRoutes);
-app.use('/api/rentals', rentalsRoutes);
+// General API rate limit: 100 requests per 15 minutes per IP
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+
+// Stricter limit for auth routes: 10 requests per 15 minutes per IP
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts, please try again later.' },
+});
+
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/phones', apiLimiter, phonesRoutes);
+app.use('/api/rentals', apiLimiter, rentalsRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });
