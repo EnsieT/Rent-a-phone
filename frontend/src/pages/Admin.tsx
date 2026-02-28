@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { loadCatalog, saveCatalog, resetCatalog } from '../utils/catalogStore'
 import type { CatalogPhone, Tier, Condition } from '../data/catalog'
 import { DEFAULT_CATALOG, TIER_LABELS, TIER_ORDER, REPO_IMAGES } from '../data/catalog'
@@ -16,6 +18,7 @@ function emptyPhone(): Omit<CatalogPhone, 'id'> {
     ram: '8 GB',
     storage: '128 GB',
     condition: 'Good',
+    mrp: 0,
     buyPrice: 0,
     perDayPrice: 0,
     available: true,
@@ -23,6 +26,25 @@ function emptyPhone(): Omit<CatalogPhone, 'id'> {
 }
 
 export default function Admin() {
+  const { user } = useAuth()
+
+  // Guard: only admins may access
+  if (!user?.isAdmin) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <div className="auth-header">
+            <div className="auth-icon">🔒</div>
+            <h1>Access Denied</h1>
+            <p>You must be logged in as an administrator to view this page.</p>
+          </div>
+          <Link to="/admin-login" className="btn btn-primary btn-lg" style={{ width: '100%', textAlign: 'center' }}>
+            Go to Admin Login
+          </Link>
+        </div>
+      </div>
+    )
+  }
   const [catalog, setCatalog] = useState<CatalogPhone[]>(() => loadCatalog())
   const [editing, setEditing] = useState<CatalogPhone | null>(null)
   const [isAdding, setIsAdding] = useState(false)
@@ -109,12 +131,16 @@ export default function Admin() {
             <input value={values.storage} onChange={(e) => onChange({ ...values, storage: e.target.value })} placeholder="e.g. 128 GB" />
           </div>
           <div className="form-group">
-            <label>Daily Rental Price ($)</label>
-            <input type="number" min="0" step="0.01" value={values.perDayPrice} onChange={(e) => onChange({ ...values, perDayPrice: parseFloat(e.target.value) || 0 })} />
+            <label>MRP (₹)</label>
+            <input type="number" min="0" step="1" value={values.mrp} onChange={(e) => onChange({ ...values, mrp: parseFloat(e.target.value) || 0 })} />
           </div>
           <div className="form-group">
-            <label>Buy Price ($)</label>
-            <input type="number" min="0" step="1" value={values.buyPrice} onChange={(e) => onChange({ ...values, buyPrice: parseFloat(e.target.value) || 0 })} />
+            <label>Buy Price (₹) — auto</label>
+            <input type="number" min="0" step="1" value={values.buyPrice} readOnly style={{ opacity: 0.7 }} />
+          </div>
+          <div className="form-group">
+            <label>Daily Rental (₹) — auto</label>
+            <input type="number" min="0" step="0.01" value={values.perDayPrice} readOnly style={{ opacity: 0.7 }} />
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label>Phone Image</label>
@@ -199,8 +225,8 @@ export default function Admin() {
                       <th>RAM</th>
                       <th>Storage</th>
                       <th>Condition</th>
-                      <th>$/day</th>
-                      <th>Buy $</th>
+                      <th>₹/day</th>
+                      <th>Buy ₹</th>
                       <th>Available</th>
                       <th>Actions</th>
                     </tr>
@@ -219,8 +245,8 @@ export default function Admin() {
                           <td>{phone.ram}</td>
                           <td>{phone.storage}</td>
                           <td>{phone.condition}</td>
-                          <td>${phone.perDayPrice.toFixed(2)}</td>
-                          <td>${phone.buyPrice.toFixed(0)}</td>
+                          <td>₹{phone.perDayPrice}</td>
+                          <td>₹{phone.buyPrice.toLocaleString('en-IN')}</td>
                           <td>
                             <span className={`badge ${phone.available ? 'badge-available' : 'badge-unavailable'}`}>
                               {phone.available ? 'Yes' : 'No'}

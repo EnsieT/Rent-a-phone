@@ -1,6 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import RentalModal from '../components/RentalModal'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 import { useState } from 'react'
 import { getCatalogPhone } from '../utils/catalogStore'
 import { discountPercent, discountedDailyPrice, isRentToOwnEligible, getTotalDaysRented } from '../utils/pricing'
@@ -10,6 +11,7 @@ export default function PhoneDetail() {
   const { id } = useParams<{ id: string }>()
   const [showModal, setShowModal] = useState(false)
   const { token } = useAuth()
+  const { addItem, items } = useCart()
   const navigate = useNavigate()
 
   const phone = id ? getCatalogPhone(Number(id)) : undefined
@@ -25,6 +27,7 @@ export default function PhoneDetail() {
     )
   }
 
+  const inCart = items.some((i) => i.phone.id === phone.id)
   const totalDaysRented = getTotalDaysRented(phone.id)
   const discount = discountPercent(totalDaysRented)
   const effectivePrice = discountedDailyPrice(phone.perDayPrice, totalDaysRented)
@@ -70,6 +73,12 @@ export default function PhoneDetail() {
             {phone.available ? 'Available' : 'Unavailable'}
           </span>
 
+          {phone.premiumOnly && (
+            <div className="premium-only-banner">
+              ★ Premium Members Only — <Link to="/membership">Join Membership</Link>
+            </div>
+          )}
+
           <div className="phone-detail-specs-grid">
             <div className="spec-item">
               <span className="spec-label">RAM</span>
@@ -80,29 +89,41 @@ export default function PhoneDetail() {
               <span className="spec-value">{phone.storage}</span>
             </div>
             <div className="spec-item">
+              <span className="spec-label">OS</span>
+              <span className="spec-value">{phone.os}</span>
+            </div>
+            <div className="spec-item">
               <span className="spec-label">Condition</span>
               <span className="spec-value">{phone.condition}</span>
             </div>
           </div>
 
           <div className="phone-detail-pricing">
+            <div className="phone-detail-mrp">
+              MRP: <span className="mrp-strike">₹{phone.mrp.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="phone-detail-buy-price">
+              Buy price: <strong>₹{phone.buyPrice.toLocaleString('en-IN')}</strong>
+              <span className="condition-factor"> ({phone.condition} condition)</span>
+            </div>
+            <div className="phone-detail-deposit">
+              Refundable Deposit: <strong>₹{phone.buyPrice.toLocaleString('en-IN')}</strong>
+              <span className="deposit-note"> (Members save ₹9,000)</span>
+            </div>
             <div className="phone-detail-price">
               {discount > 0 ? (
                 <>
-                  <span className="price-original">${phone.perDayPrice.toFixed(2)}</span>
-                  <span className="price-discounted">${effectivePrice.toFixed(2)}</span>
+                  <span className="price-original">₹{phone.perDayPrice}</span>
+                  <span className="price-discounted">₹{Math.round(effectivePrice)}</span>
                   <span className="price-unit">/ day</span>
                   <span className="price-discount-badge">-{discount}%</span>
                 </>
               ) : (
                 <>
-                  <span className="price-main">${phone.perDayPrice.toFixed(2)}</span>
+                  <span className="price-main">₹{phone.perDayPrice}</span>
                   <span className="price-unit">/ day</span>
                 </>
               )}
-            </div>
-            <div className="phone-detail-buy-price">
-              Buy price: <strong>${phone.buyPrice.toFixed(0)}</strong>
             </div>
           </div>
 
@@ -132,14 +153,24 @@ export default function PhoneDetail() {
             </div>
           )}
 
-          <button
-            className="btn btn-primary btn-lg"
-            onClick={handleRentClick}
-            disabled={!phone.available}
-            style={{ marginTop: '0.5rem' }}
-          >
-            {phone.available ? 'Rent Now' : 'Unavailable'}
-          </button>
+          <div className="phone-detail-actions">
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={handleRentClick}
+              disabled={!phone.available}
+            >
+              {phone.available ? 'Rent Now' : 'Unavailable'}
+            </button>
+            {phone.available && (
+              <button
+                className={`btn btn-lg ${inCart ? 'btn-secondary' : 'btn-cart'}`}
+                onClick={() => !inCart && addItem(phone)}
+                disabled={inCart}
+              >
+                {inCart ? '✓ In Cart' : '🛒 Add to Cart'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

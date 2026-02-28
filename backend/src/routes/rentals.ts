@@ -9,7 +9,9 @@ router.use(authMiddleware);
 interface PhoneRow {
   id: number;
   price_per_day: number;
+  buy_price: number;
   available: number;
+  premium_only: number;
 }
 
 interface RentalRow {
@@ -20,6 +22,7 @@ interface RentalRow {
   end_date: string;
   status: string;
   total_price: number;
+  deposit: number;
   created_at: string;
 }
 
@@ -95,12 +98,22 @@ router.post('/', (req: AuthRequest, res: Response): void => {
   }
 
   const phone = db
-    .prepare('SELECT id, price_per_day, available FROM phones WHERE id = ?')
+    .prepare('SELECT id, price_per_day, buy_price, available, premium_only FROM phones WHERE id = ?')
     .get(phoneId) as PhoneRow | undefined;
 
   if (!phone) {
     res.status(404).json({ error: 'Phone not found' });
     return;
+  }
+
+  // Check membership requirement for premium-only phones
+  if (phone.premium_only) {
+    const user = db.prepare('SELECT is_member, membership_expiry FROM users WHERE id = ?')
+      .get(userId) as { is_member: number; membership_expiry: string | null } | undefined;
+    if (!user?.is_member || !user.membership_expiry || new Date(user.membership_expiry) < new Date()) {
+      res.status(403).json({ error: 'This phone is available only to RentAPhone members. Please subscribe to a membership first.' });
+      return;
+    }
   }
 
   if (hasOverlap(phone.id, startDate, endDate)) {
@@ -111,12 +124,18 @@ router.post('/', (req: AuthRequest, res: Response): void => {
   const days = daysBetween(startDate, endDate);
   const total_price = Math.round(days * phone.price_per_day * 100) / 100;
 
+  // Deposit = buy_price. Members get ₹9,000 off deposit.
+  const userRow = db.prepare('SELECT is_member, membership_expiry FROM users WHERE id = ?')
+    .get(userId) as { is_member: number; membership_expiry: string | null } | undefined;
+  const isMember = userRow?.is_member && userRow?.membership_expiry && new Date(userRow.membership_expiry) >= new Date();
+  const deposit = Math.max(0, phone.buy_price - (isMember ? 9000 : 0));
+
   const result = db
     .prepare(`
-      INSERT INTO rentals (user_id, phone_id, start_date, end_date, status, total_price)
-      VALUES (?, ?, ?, ?, 'pending', ?)
+      INSERT INTO rentals (user_id, phone_id, start_date, end_date, status, total_price, deposit)
+      VALUES (?, ?, ?, ?, 'pending', ?, ?)
     `)
-    .run(userId, phone.id, startDate, endDate, total_price);
+    .run(userId, phone.id, startDate, endDate, total_price, deposit);
 
   const rental = db
     .prepare('SELECT * FROM rentals WHERE id = ?')

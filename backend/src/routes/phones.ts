@@ -8,6 +8,8 @@ interface PhoneRow {
   brand: string;
   model: string;
   description: string;
+  mrp: number;
+  buy_price: number;
   price_per_day: number;
   image_url: string;
   available: number;
@@ -15,8 +17,9 @@ interface PhoneRow {
   tier: string;
   ram: string;
   storage: string;
+  os: string;
   condition: string;
-  buy_price: number;
+  premium_only: number;
 }
 
 router.get('/', (req: Request, res: Response): void => {

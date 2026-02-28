@@ -108,7 +108,7 @@ export default function MyRentals() {
                   </span>
                 </div>
                 <div className="rental-card-price">
-                  Total: ${rental.total_price.toFixed(2)}
+                  Total: ₹{Math.round(rental.total_price).toLocaleString('en-IN')}
                 </div>
                 {rental.status !== 'cancelled' && rental.status !== 'completed' && (
                   <div style={{ marginTop: '0.5rem' }}>

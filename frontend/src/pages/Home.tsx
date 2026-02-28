@@ -15,7 +15,6 @@ function getTierDescription(tier: Tier): string {
 export default function Home() {
   const catalog = loadCatalog()
 
-  // Show up to 2 phones per tier as featured
   const featured = TIER_ORDER.flatMap((tier) =>
     catalog.filter((p) => p.tier === tier).slice(0, 2)
   )
@@ -33,9 +32,60 @@ export default function Home() {
             <Link to="/phones" className="btn btn-lg hero-btn-primary">
               Browse Phones
             </Link>
-            <Link to="/phones" className="btn btn-lg hero-btn-secondary">
-              View All Tiers
+            <Link to="/membership" className="btn btn-lg hero-btn-secondary">
+              ⭐ Join Membership
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Marketing Scenarios */}
+      <section className="section marketing-section">
+        <div className="container">
+          <div className="marketing-grid">
+            <div className="marketing-card marketing-card-repair">
+              <div className="marketing-icon">🔧</div>
+              <h3>Phone Damaged? Repair Taking Days?</h3>
+              <p>Don't stay disconnected. Pick up a rental in minutes and stay connected while your phone gets fixed. No contracts, no fuss — just the phone you need, when you need it.</p>
+              <Link to="/phones" className="btn btn-outline btn-sm">Get a Rental Now →</Link>
+            </div>
+            <div className="marketing-card marketing-card-try">
+              <div className="marketing-icon">🔍</div>
+              <h3>Want to Buy a Phone? Try It First!</h3>
+              <p>Not sure if it's the right fit? Rent it for a week before committing. Test the camera, battery, performance — everything. Make a confident purchase decision.</p>
+              <Link to="/phones" className="btn btn-outline btn-sm">Try Before You Buy →</Link>
+            </div>
+            <div className="marketing-card marketing-card-travel">
+              <div className="marketing-icon">✈️</div>
+              <h3>Travelling? Need a Temporary Phone?</h3>
+              <p>Keep your primary phone safe while travelling. Rent a budget-friendly device for your trip — perfect for navigation, calls, and photos without the worry.</p>
+              <Link to="/phones" className="btn btn-outline btn-sm">Rent for Travel →</Link>
+            </div>
+            <div className="marketing-card marketing-card-gift">
+              <div className="marketing-icon">🎁</div>
+              <h3>Gift a Phone Experience</h3>
+              <p>Surprise someone special with a premium phone rental. Let them experience the latest iPhone or Galaxy without the full price tag. It's the perfect tech gift.</p>
+              <Link to="/phones" className="btn btn-outline btn-sm">Browse Premium →</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Membership Promo */}
+      <section className="section membership-promo-section">
+        <div className="container">
+          <div className="membership-promo">
+            <div className="membership-promo-content">
+              <h2>⭐ Premium Membership</h2>
+              <p className="promo-price">₹10,000<span>/year</span> — Fully Refundable</p>
+              <ul className="promo-benefits">
+                <li>🔓 Access exclusive premium-only phones</li>
+                <li>💰 Save ₹9,000 on every rental deposit</li>
+                <li>⚡ Priority support &amp; faster delivery</li>
+                <li>🔄 100% refundable if you cancel</li>
+              </ul>
+              <Link to="/membership" className="btn btn-primary btn-lg">Join Now</Link>
+            </div>
           </div>
         </div>
       </section>

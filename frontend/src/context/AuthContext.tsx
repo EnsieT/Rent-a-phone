@@ -13,12 +13,27 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    if (!payload.exp) return false
+    return Date.now() >= payload.exp * 1000
+  } catch {
+    return true
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [auth, setAuth] = useState<AuthState>(() => {
     const token = localStorage.getItem('token')
     const userStr = localStorage.getItem('user')
     if (token && userStr) {
       try {
+        if (isTokenExpired(token)) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          return { token: null, user: null }
+        }
         return { token, user: JSON.parse(userStr) as User }
       } catch {
         return { token: null, user: null }

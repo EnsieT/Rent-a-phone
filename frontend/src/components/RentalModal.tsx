@@ -113,17 +113,17 @@ export default function RentalModal({ phone, onClose }: Props) {
             <div className="price-summary">
               <div className="price-summary-row">
                 <span>Base price per day</span>
-                <span>${basePrice.toFixed(2)}</span>
+                <span>₹{basePrice}</span>
               </div>
               {discount > 0 && (
                 <>
                   <div className="price-summary-row discount-row">
                     <span>Discount ({discount}%)</span>
-                    <span>-${savings.toFixed(2)}</span>
+                    <span>-₹{Math.round(savings)}</span>
                   </div>
                   <div className="price-summary-row">
                     <span>Effective price per day</span>
-                    <span>${effectivePrice.toFixed(2)}</span>
+                    <span>₹{Math.round(effectivePrice)}</span>
                   </div>
                 </>
               )}
@@ -133,7 +133,7 @@ export default function RentalModal({ phone, onClose }: Props) {
               </div>
               <div className="price-summary-total">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{Math.round(total).toLocaleString('en-IN')}</span>
               </div>
             </div>
           )}

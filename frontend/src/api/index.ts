@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3001',
+  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api',
 })
 
 api.interceptors.request.use((config) => {
@@ -17,14 +17,17 @@ export interface Phone {
   brand: string
   model: string
   description: string
+  mrp?: number
+  buy_price?: number
   price_per_day: number
   image_url: string
   available: number
   tier?: string
   ram?: string
   storage?: string
+  os?: string
   condition?: string
-  buy_price?: number
+  premium_only?: number
 }
 
 export interface User {
@@ -32,6 +35,9 @@ export interface User {
   name: string
   email: string
   created_at: string
+  isAdmin?: boolean
+  isMember?: boolean
+  membershipExpiry?: string | null
 }
 
 export interface AuthResponse {
@@ -47,6 +53,7 @@ export interface Rental {
   end_date: string
   status: string
   total_price: number
+  deposit: number
   created_at: string
   brand: string
   model: string
@@ -66,11 +73,17 @@ export const login = (email: string, password: string) =>
 export const register = (name: string, email: string, password: string) =>
   api.post<AuthResponse>('/auth/register', { name, email, password })
 
+export const adminLogin = (email: string, password: string) =>
+  api.post<AuthResponse>('/auth/admin-login', { email, password })
+
 export const getMyRentals = () => api.get<Rental[]>('/rentals')
 
 export const createRental = (phoneId: number, startDate: string, endDate: string) =>
   api.post<Rental>('/rentals', { phoneId, startDate, endDate })
 
 export const cancelRental = (id: number) => api.delete(`/rentals/${id}`)
+
+export const getMembershipStatus = () => api.get<{ isMember: boolean; expiryDate: string | null }>('/membership/status')
+export const subscribeMembership = () => api.post<{ isMember: boolean; expiryDate: string; message: string }>('/membership/subscribe')
 
 export default api

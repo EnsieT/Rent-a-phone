@@ -7,6 +7,7 @@ import './db'; // initializes DB on startup
 import authRoutes from './routes/auth';
 import phonesRoutes from './routes/phones';
 import rentalsRoutes from './routes/rentals';
+import membershipRoutes from './routes/membership';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -40,6 +41,7 @@ const authLimiter = rateLimit({
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/phones', apiLimiter, phonesRoutes);
 app.use('/api/rentals', apiLimiter, rentalsRoutes);
+app.use('/api/membership', apiLimiter, membershipRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });

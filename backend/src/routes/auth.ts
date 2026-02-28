@@ -12,6 +12,9 @@ interface UserRow {
   name: string;
   email: string;
   password_hash: string;
+  is_admin: number;
+  is_member: number;
+  membership_expiry: string | null;
   created_at: string;
 }
 
@@ -46,7 +49,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
 
     const user = db
       .prepare('SELECT id, name, email, created_at FROM users WHERE id = ?')
-      .get(result.lastInsertRowid) as Omit<UserRow, 'password_hash'>;
+      .get(result.lastInsertRowid) as Omit<UserRow, 'password_hash' | 'is_admin'>;
 
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
       expiresIn: '7d',
@@ -67,7 +70,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
   }
 
   const row = db
-    .prepare('SELECT id, name, email, password_hash, created_at FROM users WHERE email = ?')
+    .prepare('SELECT id, name, email, password_hash, is_admin, is_member, membership_expiry, created_at FROM users WHERE email = ?')
     .get(email) as UserRow | undefined;
 
   if (!row) {
@@ -82,12 +85,52 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = jwt.sign({ userId: row.id, email: row.email }, JWT_SECRET, {
-      expiresIn: '7d',
-    });
+    const token = jwt.sign(
+      { userId: row.id, email: row.email, isAdmin: !!row.is_admin },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
-    const { password_hash: _ph, ...user } = row;
-    res.json({ token, user });
+    const { password_hash: _ph, is_admin, is_member, membership_expiry, ...user } = row;
+    const isMember = is_member === 1 && membership_expiry && new Date(membership_expiry) >= new Date();
+    res.json({ token, user: { ...user, isAdmin: !!is_admin, isMember: !!isMember, membershipExpiry: membership_expiry } });
+  } catch {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/admin-login', async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body as { email?: string; password?: string };
+
+  if (!email || !password) {
+    res.status(400).json({ error: 'email and password are required' });
+    return;
+  }
+
+  const row = db
+    .prepare('SELECT id, name, email, password_hash, is_admin, created_at FROM users WHERE email = ?')
+    .get(email) as UserRow | undefined;
+
+  if (!row || !row.is_admin) {
+    res.status(401).json({ error: 'Invalid admin credentials' });
+    return;
+  }
+
+  try {
+    const match = await bcrypt.compare(password, row.password_hash);
+    if (!match) {
+      res.status(401).json({ error: 'Invalid admin credentials' });
+      return;
+    }
+
+    const token = jwt.sign(
+      { userId: row.id, email: row.email, isAdmin: true },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const { password_hash: _ph, is_admin: _ia, ...user } = row;
+    res.json({ token, user: { ...user, isAdmin: true } });
   } catch {
     res.status(500).json({ error: 'Internal server error' });
   }

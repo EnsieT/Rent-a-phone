@@ -6,6 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET ?? 'change-me-in-production';
 export interface AuthPayload {
   userId: number;
   email: string;
+  isAdmin?: boolean;
 }
 
 export interface AuthRequest extends Request {
@@ -31,4 +32,16 @@ export function authMiddleware(
   } catch {
     res.status(401).json({ error: 'Invalid or expired token' });
   }
+}
+
+export function adminMiddleware(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void {
+  if (!req.user?.isAdmin) {
+    res.status(403).json({ error: 'Admin access required' });
+    return;
+  }
+  next();
 }

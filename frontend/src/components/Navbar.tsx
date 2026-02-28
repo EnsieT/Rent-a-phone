@@ -1,8 +1,10 @@
 import { NavLink, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
+  const { totalItems } = useCart()
 
   return (
     <nav className="navbar">
@@ -19,16 +21,20 @@ export default function Navbar() {
           <li>
             <NavLink to="/phones">Browse Phones</NavLink>
           </li>
+          <li>
+            <NavLink to="/membership" className="membership-nav-link">⭐ Membership</NavLink>
+          </li>
           {user && (
             <li>
               <NavLink to="/rentals">My Rentals</NavLink>
             </li>
           )}
-          <li>
-            <NavLink to="/admin">Admin</NavLink>
-          </li>
         </ul>
         <div className="navbar-actions">
+          <Link to="/cart" className="cart-icon-link">
+            🛒
+            {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
+          </Link>
           {user ? (
             <>
               <span style={{ fontSize: '0.9rem', color: 'var(--gray-600)' }}>
