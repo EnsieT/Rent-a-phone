@@ -8,6 +8,8 @@ import { recordRentalDays } from '../utils/pricing'
 type Step = 'review' | 'payment' | 'processing' | 'success'
 type PaymentMethod = 'upi' | 'card' | 'netbanking'
 
+const PICKUP_DROP_CHARGE = 150
+
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart()
   const { user } = useAuth()
@@ -21,11 +23,27 @@ export default function Checkout() {
   const [upiId, setUpiId] = useState('')
   const [selectedBank, setSelectedBank] = useState('')
   const [error, setError] = useState('')
+  const [pickupDrop, setPickupDrop] = useState(false)
 
   const isMember = user?.isMember ?? false
   const depositDiscount = isMember ? 9000 : 0
-  const totalDeposit = items.reduce((s, i) => s + Math.max(0, i.phone.buyPrice - depositDiscount), 0)
-  const grandTotal = totalPrice + totalDeposit
+
+  // Dynamic deposit: deposit = buy_price (- member discount) - rental amount
+  // The rental is deducted from the deposit, so final deposit = max(0, deposit - rental)
+  const itemBreakdowns = items.map(({ phone, days }) => {
+    const baseDeposit = Math.max(0, phone.buyPrice - depositDiscount)
+    const rental = phone.perDayPrice * days
+    const finalDeposit = Math.max(0, baseDeposit - rental)
+    return { phone, days, baseDeposit, rental, finalDeposit }
+  })
+
+  const totalRental = totalPrice
+  const totalBaseDeposit = itemBreakdowns.reduce((s, b) => s + b.baseDeposit, 0)
+  const totalFinalDeposit = itemBreakdowns.reduce((s, b) => s + b.finalDeposit, 0)
+  const totalRentalDeducted = totalBaseDeposit - totalFinalDeposit
+  const pickupDropTotal = pickupDrop ? items.length * PICKUP_DROP_CHARGE : 0
+  // Grand total = rental + final deposit (after rental deducted) + pickup/drop
+  const grandTotal = totalRental + totalFinalDeposit + pickupDropTotal
 
   if (items.length === 0 && step !== 'success') {
     navigate('/cart')
@@ -76,7 +94,7 @@ export default function Checkout() {
       for (const { phone, days } of items) {
         const startDate = today.toISOString().split('T')[0]
         const endDate = new Date(today.getTime() + days * 86400000).toISOString().split('T')[0]
-        await createRental(phone.id, startDate, endDate)
+        await createRental(phone.id, startDate, endDate, pickupDrop)
         recordRentalDays(phone.id, days)
       }
       clearCart()
@@ -136,28 +154,74 @@ export default function Checkout() {
             <>
               <h3>Order Review</h3>
               <div className="checkout-items">
-                {items.map(({ phone, days }) => (
-                  <div key={phone.id} className="checkout-item">
+                {itemBreakdowns.map(({ phone, days, baseDeposit, rental, finalDeposit }) => (
+                  <div key={phone.id} className="checkout-item checkout-item-detailed">
                     <img src={phone.imagePath} alt={phone.model} className="checkout-item-img" />
-                    <div>
+                    <div className="checkout-item-body">
                       <div className="checkout-item-name">
                         {phone.brand} {phone.model}
                         {phone.premiumOnly && <span className="premium-only-badge-sm">★</span>}
                       </div>
                       <div className="checkout-item-detail">
-                        {days} days × ₹{phone.perDayPrice}/day
+                        {days} day{days > 1 ? 's' : ''} × ₹{phone.perDayPrice}/day = <strong>₹{rental.toLocaleString('en-IN')}</strong>
                       </div>
-                      <div className="checkout-item-deposit">
-                        Deposit: ₹{Math.max(0, phone.buyPrice - depositDiscount).toLocaleString('en-IN')}
-                        {isMember && <span className="member-discount-tag"> (₹9,000 off)</span>}
+                      <div className="checkout-deposit-breakdown">
+                        <div className="deposit-line">
+                          Deposit: ₹{baseDeposit.toLocaleString('en-IN')}
+                          {isMember && <span className="member-discount-tag"> (₹9,000 member discount)</span>}
+                        </div>
+                        <div className="deposit-line deposit-deduction">
+                          Rental deducted: −₹{Math.min(rental, baseDeposit).toLocaleString('en-IN')}
+                        </div>
+                        <div className="deposit-line deposit-final">
+                          Final deposit: <strong>₹{finalDeposit.toLocaleString('en-IN')}</strong>
+                        </div>
                       </div>
                     </div>
                     <div className="checkout-item-price">
-                      ₹{(phone.perDayPrice * days).toLocaleString('en-IN')}
+                      ₹{rental.toLocaleString('en-IN')}
                     </div>
                   </div>
                 ))}
               </div>
+
+              {/* Pickup & Drop option */}
+              <div className="checkout-option-card">
+                <label className="checkout-option-label">
+                  <input
+                    type="checkbox"
+                    checked={pickupDrop}
+                    onChange={(e) => setPickupDrop(e.target.checked)}
+                  />
+                  <div>
+                    <strong>🚚 Pickup & Drop Service</strong>
+                    <span className="option-price">₹{PICKUP_DROP_CHARGE}/device</span>
+                  </div>
+                </label>
+                <p className="option-description">
+                  We'll pick up the phone from your doorstep and collect it back after the rental period.
+                </p>
+              </div>
+
+              {/* Terms & Conditions */}
+              <div className="checkout-terms">
+                <h4>📋 Rental Terms</h4>
+                <ul>
+                  <li>
+                    <strong>24-hour billing:</strong> Rentals are charged on a 24-hour basis from the start time.
+                  </li>
+                  <li>
+                    <strong>Late return penalty:</strong> For every day of delay beyond the end date, <strong>2× the daily rental rate</strong> will be deducted from your deposit.
+                  </li>
+                  <li>
+                    <strong>Damage policy:</strong> Any damage to the phone (scratches, screen cracks, water damage, etc.) will be assessed and the repair/replacement cost will be deducted from your refundable deposit.
+                  </li>
+                  <li>
+                    <strong>Deposit refund:</strong> Your deposit (minus rental and any applicable deductions) will be refunded within 3-5 business days after the phone is returned in acceptable condition.
+                  </li>
+                </ul>
+              </div>
+
               <button className="btn btn-primary btn-lg" onClick={() => setStep('payment')} style={{ width: '100%', marginTop: '1.5rem' }}>
                 Continue to Payment
               </button>
@@ -320,29 +384,46 @@ export default function Checkout() {
 
         <div className="checkout-summary">
           <h3>Summary</h3>
-          {items.map(({ phone, days }) => (
+          {itemBreakdowns.map(({ phone, days, rental }) => (
             <div key={phone.id} className="cart-summary-row">
               <span>{phone.brand} {phone.model} × {days}d</span>
-              <span>₹{(phone.perDayPrice * days).toLocaleString('en-IN')}</span>
+              <span>₹{rental.toLocaleString('en-IN')}</span>
             </div>
           ))}
           <div className="cart-summary-subtotal">
             <span>Rental</span>
-            <span>₹{totalPrice.toLocaleString('en-IN')}</span>
+            <span>₹{totalRental.toLocaleString('en-IN')}</span>
           </div>
           <div className="cart-summary-subtotal">
-            <span>Deposit (Refundable)</span>
-            <span>₹{totalDeposit.toLocaleString('en-IN')}</span>
+            <span>Deposit (before rental)</span>
+            <span>₹{totalBaseDeposit.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="cart-summary-discount">
+            <span>Rental deducted from deposit</span>
+            <span>−₹{totalRentalDeducted.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="cart-summary-subtotal">
+            <span>Refundable Deposit</span>
+            <span>₹{totalFinalDeposit.toLocaleString('en-IN')}</span>
           </div>
           {isMember && (
             <div className="cart-summary-discount">
-              <span>Member Discount</span>
+              <span>Member Deposit Discount</span>
               <span>−₹{(items.length * 9000).toLocaleString('en-IN')}</span>
             </div>
           )}
+          {pickupDrop && (
+            <div className="cart-summary-subtotal">
+              <span>Pickup & Drop ({items.length}×₹{PICKUP_DROP_CHARGE})</span>
+              <span>₹{pickupDropTotal.toLocaleString('en-IN')}</span>
+            </div>
+          )}
           <div className="cart-summary-total">
-            <span>Grand Total</span>
+            <span>You Pay Today</span>
             <span>₹{grandTotal.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="checkout-summary-note">
+            <small>⚠️ Late returns: 2× daily rate/day deducted from deposit. Damage costs recovered from deposit.</small>
           </div>
         </div>
       </div>

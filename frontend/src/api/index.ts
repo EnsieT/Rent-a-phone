@@ -54,6 +54,8 @@ export interface Rental {
   status: string
   total_price: number
   deposit: number
+  pickup_drop: number
+  pickup_drop_charge: number
   created_at: string
   brand: string
   model: string
@@ -78,12 +80,18 @@ export const adminLogin = (email: string, password: string) =>
 
 export const getMyRentals = () => api.get<Rental[]>('/rentals')
 
-export const createRental = (phoneId: number, startDate: string, endDate: string) =>
-  api.post<Rental>('/rentals', { phoneId, startDate, endDate })
+export const createRental = (phoneId: number, startDate: string, endDate: string, pickupDrop?: boolean) =>
+  api.post<Rental>('/rentals', { phoneId, startDate, endDate, pickupDrop })
 
 export const cancelRental = (id: number) => api.delete(`/rentals/${id}`)
 
 export const getMembershipStatus = () => api.get<{ isMember: boolean; expiryDate: string | null }>('/membership/status')
 export const subscribeMembership = () => api.post<{ isMember: boolean; expiryDate: string; message: string }>('/membership/subscribe')
+
+export const forgotPassword = (email: string) =>
+  api.post<{ message: string; _demo_otp?: string }>('/auth/forgot-password', { email })
+
+export const resetPassword = (email: string, otp: string, newPassword: string) =>
+  api.post<{ message: string }>('/auth/reset-password', { email, otp, newPassword })
 
 export default api

@@ -32,6 +32,8 @@ function migrate(): void {
       is_admin    INTEGER NOT NULL DEFAULT 0,
       is_member   INTEGER NOT NULL DEFAULT 0,
       membership_expiry TEXT,
+      otp_code    TEXT,
+      otp_expiry  TEXT,
       created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -64,6 +66,8 @@ function migrate(): void {
                           CHECK(status IN ('pending','active','cancelled','completed')),
       total_price REAL    NOT NULL,
       deposit     REAL    NOT NULL DEFAULT 0,
+      pickup_drop INTEGER NOT NULL DEFAULT 0,
+      pickup_drop_charge REAL NOT NULL DEFAULT 0,
       created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -95,10 +99,18 @@ function migrate(): void {
     db.exec("ALTER TABLE users ADD COLUMN is_member INTEGER NOT NULL DEFAULT 0");
   if (!userCols.includes('membership_expiry'))
     db.exec("ALTER TABLE users ADD COLUMN membership_expiry TEXT");
+  if (!userCols.includes('otp_code'))
+    db.exec("ALTER TABLE users ADD COLUMN otp_code TEXT");
+  if (!userCols.includes('otp_expiry'))
+    db.exec("ALTER TABLE users ADD COLUMN otp_expiry TEXT");
 
   const rentalCols = (db.prepare("PRAGMA table_info(rentals)").all() as Array<{ name: string }>).map((r) => r.name);
   if (!rentalCols.includes('deposit'))
     db.exec("ALTER TABLE rentals ADD COLUMN deposit REAL NOT NULL DEFAULT 0");
+  if (!rentalCols.includes('pickup_drop'))
+    db.exec("ALTER TABLE rentals ADD COLUMN pickup_drop INTEGER NOT NULL DEFAULT 0");
+  if (!rentalCols.includes('pickup_drop_charge'))
+    db.exec("ALTER TABLE rentals ADD COLUMN pickup_drop_charge REAL NOT NULL DEFAULT 0");
 }
 
 function calcPrice(mrp: number, condition: string) {

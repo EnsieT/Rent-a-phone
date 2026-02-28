@@ -136,4 +136,87 @@ router.post('/admin-login', async (req: Request, res: Response): Promise<void> =
   }
 });
 
+// ── Forgot Password (OTP-based) ────────────────────────────────────────
+
+router.post('/forgot-password', (req: Request, res: Response): void => {
+  const { email } = req.body as { email?: string };
+
+  if (!email) {
+    res.status(400).json({ error: 'Email is required' });
+    return;
+  }
+
+  const row = db.prepare('SELECT id, name, email FROM users WHERE email = ?').get(email) as
+    | { id: number; name: string; email: string }
+    | undefined;
+
+  if (!row) {
+    // Don't reveal whether email exists
+    res.json({ message: 'If this email is registered, an OTP has been sent.' });
+    return;
+  }
+
+  // Generate 6-digit OTP, valid for 10 minutes
+  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+  db.prepare('UPDATE users SET otp_code = ?, otp_expiry = ? WHERE id = ?').run(otp, expiry, row.id);
+
+  // In production, send OTP via email/SMS. For demo, we return it in the response.
+  res.json({
+    message: 'If this email is registered, an OTP has been sent.',
+    // Demo only — remove in production:
+    _demo_otp: otp,
+  });
+});
+
+router.post('/reset-password', async (req: Request, res: Response): Promise<void> => {
+  const { email, otp, newPassword } = req.body as {
+    email?: string;
+    otp?: string;
+    newPassword?: string;
+  };
+
+  if (!email || !otp || !newPassword) {
+    res.status(400).json({ error: 'email, otp, and newPassword are required' });
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    res.status(400).json({ error: 'Password must be at least 6 characters' });
+    return;
+  }
+
+  const row = db
+    .prepare('SELECT id, otp_code, otp_expiry FROM users WHERE email = ?')
+    .get(email) as { id: number; otp_code: string | null; otp_expiry: string | null } | undefined;
+
+  if (!row || !row.otp_code || !row.otp_expiry) {
+    res.status(400).json({ error: 'No OTP request found. Please request a new OTP.' });
+    return;
+  }
+
+  if (new Date(row.otp_expiry) < new Date()) {
+    res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
+    return;
+  }
+
+  if (row.otp_code !== otp) {
+    res.status(400).json({ error: 'Invalid OTP. Please try again.' });
+    return;
+  }
+
+  try {
+    const password_hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    db.prepare('UPDATE users SET password_hash = ?, otp_code = NULL, otp_expiry = NULL WHERE id = ?').run(
+      password_hash,
+      row.id
+    );
+
+    res.json({ message: 'Password reset successfully. You can now log in.' });
+  } catch {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

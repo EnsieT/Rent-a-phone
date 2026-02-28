@@ -100,26 +100,40 @@ export default function Cart() {
         <div className="cart-summary">
           <h3>Order Summary</h3>
           <div className="cart-summary-rows">
-            {items.map(({ phone, days }) => (
-              <div key={phone.id} className="cart-summary-row">
-                <span>
-                  {phone.brand} {phone.model} × {days}d
-                </span>
-                <span>₹{(phone.perDayPrice * days).toLocaleString('en-IN')}</span>
-              </div>
-            ))}
+            {items.map(({ phone, days }) => {
+              const rental = phone.perDayPrice * days
+              return (
+                <div key={phone.id} className="cart-summary-row">
+                  <span>
+                    {phone.brand} {phone.model} × {days}d
+                  </span>
+                  <span>₹{rental.toLocaleString('en-IN')}</span>
+                </div>
+              )
+            })}
           </div>
           <div className="cart-summary-total">
             <span>Rental Total</span>
             <span>₹{totalPrice.toLocaleString('en-IN')}</span>
           </div>
           <div className="cart-summary-deposit">
-            <span>Total Deposit (Refundable)</span>
+            <span>Total Deposit</span>
             <span>₹{items.reduce((s, i) => s + i.phone.buyPrice, 0).toLocaleString('en-IN')}</span>
           </div>
+          <div className="cart-summary-discount">
+            <span>Rental deducted from deposit</span>
+            <span>−₹{items.reduce((s, { phone, days }) => s + Math.min(phone.perDayPrice * days, phone.buyPrice), 0).toLocaleString('en-IN')}</span>
+          </div>
+          <div className="cart-summary-deposit">
+            <span>Refundable Deposit</span>
+            <span>₹{items.reduce((s, { phone, days }) => s + Math.max(0, phone.buyPrice - phone.perDayPrice * days), 0).toLocaleString('en-IN')}</span>
+          </div>
           <div className="cart-summary-grand">
-            <span>Grand Total</span>
-            <span>₹{(totalPrice + items.reduce((s, i) => s + i.phone.buyPrice, 0)).toLocaleString('en-IN')}</span>
+            <span>You'll Pay</span>
+            <span>₹{(totalPrice + items.reduce((s, { phone, days }) => s + Math.max(0, phone.buyPrice - phone.perDayPrice * days), 0)).toLocaleString('en-IN')}</span>
+          </div>
+          <div className="cart-summary-terms-note">
+            <small>🚚 Pickup & Drop available at ₹150/device · ⚠️ Late return: 2× daily rate/day · Damage costs deducted from deposit</small>
           </div>
           <button className="btn btn-primary btn-lg cart-checkout-btn" onClick={handleCheckout}>
             Proceed to Payment

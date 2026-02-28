@@ -108,7 +108,10 @@ export default function PhoneDetail() {
             </div>
             <div className="phone-detail-deposit">
               Refundable Deposit: <strong>₹{phone.buyPrice.toLocaleString('en-IN')}</strong>
-              <span className="deposit-note"> (Members save ₹9,000)</span>
+              <span className="deposit-note"> (Rental days deducted from deposit · Members save ₹9,000)</span>
+            </div>
+            <div className="phone-detail-terms-note">
+              <small>🕐 24-hr billing · 🚚 Pickup & Drop ₹150 · ⚠️ Late return: 2× daily rate · Damage costs deducted from deposit</small>
             </div>
             <div className="phone-detail-price">
               {discount > 0 ? (

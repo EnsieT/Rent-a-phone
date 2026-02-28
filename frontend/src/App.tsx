@@ -14,6 +14,7 @@ import AdminLogin from './pages/AdminLogin'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Membership from './pages/Membership'
+import ForgotPassword from './pages/ForgotPassword'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               <Route path="/phones" element={<Phones />} />
               <Route path="/phones/:id" element={<PhoneDetail />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/admin" element={<Admin />} />

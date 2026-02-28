@@ -23,6 +23,8 @@ interface RentalRow {
   status: string;
   total_price: number;
   deposit: number;
+  pickup_drop: number;
+  pickup_drop_charge: number;
   created_at: string;
 }
 
@@ -67,10 +69,11 @@ router.get('/', (req: AuthRequest, res: Response): void => {
 
 router.post('/', (req: AuthRequest, res: Response): void => {
   const userId = req.user!.userId;
-  const { phoneId, startDate, endDate } = req.body as {
+  const { phoneId, startDate, endDate, pickupDrop } = req.body as {
     phoneId?: number;
     startDate?: string;
     endDate?: string;
+    pickupDrop?: boolean;
   };
 
   if (!phoneId || !startDate || !endDate) {
@@ -125,17 +128,22 @@ router.post('/', (req: AuthRequest, res: Response): void => {
   const total_price = Math.round(days * phone.price_per_day * 100) / 100;
 
   // Deposit = buy_price. Members get ₹9,000 off deposit.
+  // Rental is deducted from deposit — user pays deposit upfront, rental taken from it.
   const userRow = db.prepare('SELECT is_member, membership_expiry FROM users WHERE id = ?')
     .get(userId) as { is_member: number; membership_expiry: string | null } | undefined;
   const isMember = userRow?.is_member && userRow?.membership_expiry && new Date(userRow.membership_expiry) >= new Date();
   const deposit = Math.max(0, phone.buy_price - (isMember ? 9000 : 0));
 
+  // Pickup & drop charge: ₹150 if requested
+  const pickup_drop = pickupDrop ? 1 : 0;
+  const pickup_drop_charge = pickupDrop ? 150 : 0;
+
   const result = db
     .prepare(`
-      INSERT INTO rentals (user_id, phone_id, start_date, end_date, status, total_price, deposit)
-      VALUES (?, ?, ?, ?, 'pending', ?, ?)
+      INSERT INTO rentals (user_id, phone_id, start_date, end_date, status, total_price, deposit, pickup_drop, pickup_drop_charge)
+      VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?)
     `)
-    .run(userId, phone.id, startDate, endDate, total_price, deposit);
+    .run(userId, phone.id, startDate, endDate, total_price, deposit, pickup_drop, pickup_drop_charge);
 
   const rental = db
     .prepare('SELECT * FROM rentals WHERE id = ?')

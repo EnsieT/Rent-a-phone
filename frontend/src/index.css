@@ -2093,4 +2093,252 @@ img { max-width: 100%; height: auto; display: block; }
   .membership-hero h1 { font-size: 1.75rem; }
   .membership-pricing-card { padding: 1.5rem; }
   .price-amount { font-size: 2.25rem; }
+  .checkout-deposit-breakdown { padding: 0.5rem 0.75rem; }
+  .checkout-terms ul { padding-left: 1rem; }
+}
+
+/* ===== Dynamic Deposit Breakdown ===== */
+.checkout-item-detailed {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.checkout-item-detailed .checkout-item-img {
+  width: 64px;
+  height: 64px;
+}
+.checkout-item-body {
+  flex: 1;
+  width: 100%;
+}
+
+.checkout-deposit-breakdown {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 0.625rem 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.deposit-line {
+  padding: 0.1875rem 0;
+  color: var(--gray-600);
+}
+
+.deposit-deduction {
+  color: var(--green-600);
+  font-weight: 600;
+}
+
+.deposit-final {
+  color: var(--gray-800);
+  border-top: 1px dashed var(--gray-200);
+  padding-top: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+/* ===== Pickup & Drop Option ===== */
+.checkout-option-card {
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.checkout-option-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+}
+
+.checkout-option-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+.checkout-option-label strong {
+  color: var(--gray-800);
+}
+
+.option-price {
+  margin-left: 0.5rem;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.option-description {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin-top: 0.375rem;
+  padding-left: 2.5rem;
+}
+
+/* ===== Rental Terms ===== */
+.checkout-terms {
+  background: var(--yellow-50);
+  border: 1px solid var(--yellow-100);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.checkout-terms h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.75rem;
+}
+
+.checkout-terms ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.checkout-terms li {
+  font-size: 0.8125rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.checkout-terms li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--yellow-700);
+  font-weight: 700;
+}
+
+.checkout-terms li strong {
+  color: var(--gray-800);
+}
+
+/* ===== Summary Notes ===== */
+.checkout-summary-note {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--yellow-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--yellow-100);
+}
+
+.checkout-summary-note small {
+  font-size: 0.75rem;
+  color: var(--yellow-700);
+  line-height: 1.5;
+}
+
+.cart-summary-terms-note {
+  margin-top: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+}
+
+.cart-summary-terms-note small {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  line-height: 1.6;
+}
+
+/* Phone detail terms note */
+.phone-detail-terms-note {
+  margin-top: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+}
+
+.phone-detail-terms-note small {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  line-height: 1.6;
+}
+
+/* ===== Forgot Password Page ===== */
+.form-forgot {
+  text-align: right;
+  margin-bottom: 1rem;
+  margin-top: -0.5rem;
+}
+
+.form-forgot a {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary);
+  transition: color 0.2s;
+}
+
+.form-forgot a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.forgot-success {
+  text-align: center;
+}
+
+.success-icon-sm {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--green-600), #10b981);
+  color: white;
+  font-size: 1.75rem;
+  font-weight: 800;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 6px 24px rgba(16,185,129,0.3);
+}
+
+.forgot-success h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.forgot-success p {
+  color: var(--gray-500);
+  font-size: 0.9375rem;
+  margin-bottom: 1rem;
+}
+
+.otp-demo-alert {
+  text-align: center;
+  font-size: 0.9375rem;
+}
+
+.otp-demo-alert strong {
+  font-size: 1.5rem;
+  letter-spacing: 0.15em;
+  font-family: 'Courier New', monospace;
+}
+
+.otp-demo-alert small {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.otp-input {
+  font-size: 1.5rem !important;
+  letter-spacing: 0.3em;
+  text-align: center;
+  font-family: 'Courier New', monospace;
 }
