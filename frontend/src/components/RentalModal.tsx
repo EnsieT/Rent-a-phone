@@ -8,8 +8,7 @@ interface RentalPhone {
   id: number
   brand: string
   model: string
-  price_per_day: number
-  perDayPrice?: number
+  perDayPrice: number
 }
 
 interface Props {
@@ -33,7 +32,7 @@ export default function RentalModal({ phone, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const basePrice = phone.perDayPrice ?? phone.price_per_day
+  const basePrice = phone.perDayPrice
 
   function calcDays(): number {
     const ms = new Date(endDate).getTime() - new Date(startDate).getTime()

@@ -145,7 +145,7 @@ export default function PhoneDetail() {
 
       {showModal && (
         <RentalModal
-          phone={{ id: phone.id, brand: phone.brand, model: phone.model, price_per_day: phone.perDayPrice, perDayPrice: phone.perDayPrice }}
+          phone={{ id: phone.id, brand: phone.brand, model: phone.model, perDayPrice: phone.perDayPrice }}
           onClose={() => setShowModal(false)}
         />
       )}
