@@ -20,6 +20,11 @@ export interface Phone {
   price_per_day: number
   image_url: string
   available: number
+  tier?: string
+  ram?: string
+  storage?: string
+  condition?: string
+  buy_price?: number
 }
 
 export interface User {

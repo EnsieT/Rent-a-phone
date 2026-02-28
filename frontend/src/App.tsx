@@ -8,6 +8,7 @@ import PhoneDetail from './pages/PhoneDetail'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import MyRentals from './pages/MyRentals'
+import Admin from './pages/Admin'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/phones/:id" element={<PhoneDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/admin" element={<Admin />} />
             <Route
               path="/rentals"
               element={

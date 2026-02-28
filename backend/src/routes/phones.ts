@@ -12,6 +12,11 @@ interface PhoneRow {
   image_url: string;
   available: number;
   created_at: string;
+  tier: string;
+  ram: string;
+  storage: string;
+  condition: string;
+  buy_price: number;
 }
 
 router.get('/', (req: Request, res: Response): void => {

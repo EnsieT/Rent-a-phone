@@ -24,6 +24,9 @@ export default function Navbar() {
               <NavLink to="/rentals">My Rentals</NavLink>
             </li>
           )}
+          <li>
+            <NavLink to="/admin">Admin</NavLink>
+          </li>
         </ul>
         <div className="navbar-actions">
           {user ? (

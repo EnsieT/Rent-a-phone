@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400">
+  <defs>
+    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6B5F4B"/>
+      <stop offset="100%" stop-color="#4A3F2F"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0c08"/>
+      <stop offset="100%" stop-color="#1a1208"/>
+    </linearGradient>
+    <linearGradient id="cameraBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8B7355"/>
+      <stop offset="100%" stop-color="#5C4A30"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="5" width="180" height="390" rx="22" fill="url(#body)"/>
+  <rect x="18" y="50" width="164" height="290" rx="8" fill="url(#screen)"/>
+  <!-- Camera visor bar (Pixel distinctive design) -->
+  <rect x="10" y="60" width="180" height="55" rx="0" fill="url(#cameraBar)"/>
+  <circle cx="55" cy="87" r="20" fill="#3d3020"/>
+  <circle cx="55" cy="87" r="15" fill="#1a1208"/>
+  <circle cx="55" cy="87" r="8" fill="#2d2418"/>
+  <circle cx="105" cy="87" r="20" fill="#3d3020"/>
+  <circle cx="105" cy="87" r="15" fill="#1a1208"/>
+  <circle cx="105" cy="87" r="8" fill="#2d2418"/>
+  <circle cx="150" cy="87" r="12" fill="#3d3020"/>
+  <circle cx="150" cy="87" r="8" fill="#1a1208"/>
+  <!-- Punch hole camera -->
+  <circle cx="100" cy="125" r="7" fill="#0f0c08"/>
+  <!-- Screen content -->
+  <text x="100" y="215" text-anchor="middle" fill="white" font-size="13" font-family="Arial,sans-serif" font-weight="bold">Google</text>
+  <text x="100" y="233" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10" font-family="Arial,sans-serif">Pixel 8 Pro</text>
+  <!-- Home indicator -->
+  <rect x="75" y="348" width="50" height="4" rx="2" fill="rgba(255,255,255,0.2)"/>
+</svg>

@@ -46,6 +46,20 @@ function migrate(): void {
       created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
   `);
+
+  // Add new columns if they don't exist yet (idempotent migration)
+  const existing = (db.prepare("PRAGMA table_info(phones)").all() as Array<{ name: string }>).map((r) => r.name);
+
+  if (!existing.includes('tier'))
+    db.exec("ALTER TABLE phones ADD COLUMN tier TEXT NOT NULL DEFAULT 'mid-tier'");
+  if (!existing.includes('ram'))
+    db.exec("ALTER TABLE phones ADD COLUMN ram TEXT NOT NULL DEFAULT '8 GB'");
+  if (!existing.includes('storage'))
+    db.exec("ALTER TABLE phones ADD COLUMN storage TEXT NOT NULL DEFAULT '128 GB'");
+  if (!existing.includes('condition'))
+    db.exec("ALTER TABLE phones ADD COLUMN condition TEXT NOT NULL DEFAULT 'Good'");
+  if (!existing.includes('buy_price'))
+    db.exec("ALTER TABLE phones ADD COLUMN buy_price REAL NOT NULL DEFAULT 0");
 }
 
 function seed(): void {
@@ -53,8 +67,8 @@ function seed(): void {
   if (count > 0) return;
 
   const insert = db.prepare(`
-    INSERT INTO phones (brand, model, description, price_per_day, image_url, available)
-    VALUES (@brand, @model, @description, @price_per_day, @image_url, 1)
+    INSERT INTO phones (brand, model, description, price_per_day, image_url, available, tier, ram, storage, condition, buy_price)
+    VALUES (@brand, @model, @description, @price_per_day, @image_url, 1, @tier, @ram, @storage, @condition, @buy_price)
   `);
 
   const phones = [
@@ -63,56 +77,96 @@ function seed(): void {
       model: 'iPhone 15 Pro',
       description: 'Latest Apple flagship with A17 Pro chip, titanium design, and ProRes video.',
       price_per_day: 12.99,
-      image_url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400',
+      image_url: '/assets/images/iphone-15-pro.svg',
+      tier: 'premium',
+      ram: '8 GB',
+      storage: '256 GB',
+      condition: 'Mint',
+      buy_price: 999.00,
     },
     {
       brand: 'Apple',
       model: 'iPhone 14',
       description: 'Reliable Apple performer with A15 Bionic, great cameras, and all-day battery.',
       price_per_day: 8.99,
-      image_url: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=400',
+      image_url: '/assets/images/iphone-14.svg',
+      tier: 'mid-tier',
+      ram: '6 GB',
+      storage: '128 GB',
+      condition: 'Like New',
+      buy_price: 649.00,
     },
     {
       brand: 'Samsung',
       model: 'Galaxy S24 Ultra',
-      description: 'Samsung\'s best with built-in S Pen, 200 MP camera, and Snapdragon 8 Gen 3.',
+      description: "Samsung's best with built-in S Pen, 200 MP camera, and Snapdragon 8 Gen 3.",
       price_per_day: 13.99,
-      image_url: 'https://images.unsplash.com/photo-1706134030060-cf5e19773cee?w=400',
+      image_url: '/assets/images/galaxy-s24-ultra.svg',
+      tier: 'premium',
+      ram: '12 GB',
+      storage: '256 GB',
+      condition: 'Mint',
+      buy_price: 1099.00,
     },
     {
       brand: 'Samsung',
       model: 'Galaxy A54',
       description: 'Mid-range Samsung with AMOLED display, 50 MP camera, and 5000 mAh battery.',
       price_per_day: 5.99,
-      image_url: 'https://images.unsplash.com/photo-1610945264803-c22b62831985?w=400',
+      image_url: '/assets/images/galaxy-a54.svg',
+      tier: 'budget',
+      ram: '6 GB',
+      storage: '128 GB',
+      condition: 'Good',
+      buy_price: 299.00,
     },
     {
       brand: 'Google',
       model: 'Pixel 8 Pro',
-      description: 'Google\'s flagship with Tensor G3 chip, advanced AI features, and 7 years of updates.',
+      description: "Google's flagship with Tensor G3 chip, advanced AI features, and 7 years of updates.",
       price_per_day: 11.99,
-      image_url: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400',
+      image_url: '/assets/images/pixel-8-pro.svg',
+      tier: 'premium',
+      ram: '12 GB',
+      storage: '128 GB',
+      condition: 'Mint',
+      buy_price: 899.00,
     },
     {
       brand: 'Google',
       model: 'Pixel 7a',
       description: 'Affordable Pixel experience with Tensor G2, excellent cameras, and pure Android.',
       price_per_day: 7.49,
-      image_url: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400',
+      image_url: '/assets/images/pixel-7a.svg',
+      tier: 'mid-tier',
+      ram: '8 GB',
+      storage: '128 GB',
+      condition: 'Like New',
+      buy_price: 449.00,
     },
     {
       brand: 'OnePlus',
       model: 'OnePlus 12',
       description: 'Flagship killer with Snapdragon 8 Gen 3, 100W fast charging, and Hasselblad cameras.',
       price_per_day: 10.99,
-      image_url: 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=400',
+      image_url: '/assets/images/oneplus-12.svg',
+      tier: 'premium',
+      ram: '16 GB',
+      storage: '256 GB',
+      condition: 'Like New',
+      buy_price: 749.00,
     },
     {
       brand: 'OnePlus',
       model: 'OnePlus Nord CE 3',
       description: 'Solid mid-ranger with Snapdragon 782G, 50 MP Sony sensor, and 80W charging.',
       price_per_day: 4.99,
-      image_url: 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=400',
+      image_url: '/assets/images/oneplus-nord-ce3.svg',
+      tier: 'budget',
+      ram: '8 GB',
+      storage: '128 GB',
+      condition: 'Good',
+      buy_price: 249.00,
     },
   ];
 

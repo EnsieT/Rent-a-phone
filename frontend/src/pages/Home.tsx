@@ -1,19 +1,24 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getPhones } from '../api'
-import type { Phone } from '../api'
+import { loadCatalog } from '../utils/catalogStore'
+import type { CatalogPhone, Tier } from '../data/catalog'
+import { TIER_LABELS, TIER_ORDER } from '../data/catalog'
 import PhoneCard from '../components/PhoneCard'
 
-export default function Home() {
-  const [phones, setPhones] = useState<Phone[]>([])
-  const [loading, setLoading] = useState(true)
+function getTierDescription(tier: Tier): string {
+  switch (tier) {
+    case 'budget': return 'Great performance at an affordable price'
+    case 'mid-tier': return 'Balanced features for everyday use'
+    case 'premium': return 'Top-of-the-line flagship experience'
+  }
+}
 
-  useEffect(() => {
-    getPhones()
-      .then((res) => setPhones(res.data.slice(0, 4)))
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
+export default function Home() {
+  const catalog = loadCatalog()
+
+  // Show up to 2 phones per tier as featured
+  const featured = TIER_ORDER.flatMap((tier) =>
+    catalog.filter((p) => p.tier === tier).slice(0, 2)
+  )
 
   return (
     <>
@@ -24,9 +29,36 @@ export default function Home() {
             Access the latest smartphones without the commitment. Flexible rentals,
             transparent pricing, and hassle-free experience.
           </p>
-          <Link to="/phones" className="btn btn-lg" style={{ background: 'white', color: 'var(--blue-600)' }}>
-            Browse Phones
-          </Link>
+          <div className="hero-actions">
+            <Link to="/phones" className="btn btn-lg hero-btn-primary">
+              Browse Phones
+            </Link>
+            <Link to="/phones" className="btn btn-lg hero-btn-secondary">
+              View All Tiers
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="section tier-overview-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Choose Your Tier</h2>
+          </div>
+          <div className="tier-overview-grid">
+            {TIER_ORDER.map((tier) => {
+              const count = catalog.filter((p) => p.tier === tier).length
+              return (
+                <Link key={tier} to="/phones" className={`tier-overview-card tier-card-${tier}`}>
+                  <div className={`tier-overview-badge tier-badge-large tier-${tier}`}>
+                    {TIER_LABELS[tier]}
+                  </div>
+                  <p className="tier-overview-desc">{getTierDescription(tier)}</p>
+                  <p className="tier-overview-count">{count} phone{count !== 1 ? 's' : ''} available</p>
+                </Link>
+              )
+            })}
+          </div>
         </div>
       </section>
 
@@ -38,21 +70,33 @@ export default function Home() {
               View All Phones
             </Link>
           </div>
+          <div className="phone-grid">
+            {featured.map((phone: CatalogPhone) => (
+              <PhoneCard key={phone.id} phone={phone} />
+            ))}
+          </div>
+        </div>
+      </section>
 
-          {loading ? (
-            <div className="loading">Loading phones…</div>
-          ) : phones.length === 0 ? (
-            <div className="empty-state">
-              <h3>No phones available</h3>
-              <p>Check back soon!</p>
+      <section className="section info-section">
+        <div className="container">
+          <div className="info-grid">
+            <div className="info-card">
+              <div className="info-icon">📅</div>
+              <h3>Flexible Rentals</h3>
+              <p>Rent for as short as 1 day or as long as you need. No long-term commitments.</p>
             </div>
-          ) : (
-            <div className="phone-grid">
-              {phones.map((phone) => (
-                <PhoneCard key={phone.id} phone={phone} />
-              ))}
+            <div className="info-card">
+              <div className="info-icon">💰</div>
+              <h3>Volume Discounts</h3>
+              <p>Rent longer and save more. Discounts increase every 30 days, up to 30% off.</p>
             </div>
-          )}
+            <div className="info-card">
+              <div className="info-icon">🏠</div>
+              <h3>Rent-to-Own</h3>
+              <p>Rent for 365 days and become eligible to purchase the phone at a special price.</p>
+            </div>
+          </div>
         </div>
       </section>
     </>

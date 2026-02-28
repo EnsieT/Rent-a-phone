@@ -86,11 +86,11 @@ export default function MyRentals() {
             <div key={rental.id} className="rental-card">
               <img
                 className="rental-card-image"
-                src={rental.image_url || 'https://placehold.co/140x120?text=Phone'}
+                src={rental.image_url || '/assets/images/fallback.svg'}
                 alt={`${rental.brand} ${rental.model}`}
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src =
-                    'https://placehold.co/140x120?text=Phone'
+                    '/assets/images/fallback.svg'
                 }}
               />
               <div className="rental-card-body">
