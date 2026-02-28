@@ -444,6 +444,12 @@ img {
   color: var(--gray-600);
 }
 
+.phone-detail-daily {
+  font-size: 0.95rem;
+  color: var(--gray-600);
+  margin-top: 0.25rem;
+}
+
 .phone-detail-description {
   color: var(--gray-600);
   line-height: 1.7;
@@ -585,6 +591,34 @@ img {
   border-radius: var(--radius);
   padding: 1rem;
   margin: 1.25rem 0;
+}
+
+/* Quote calculator on the phone detail page */
+.quote-calculator {
+  margin-top: 1.25rem;
+}
+
+.quote-days-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--gray-700, var(--gray-600));
+}
+
+.quote-days-row input[type='number'] {
+  width: 80px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+}
+
+/* Secondary label on phone cards */
+.phone-card-daily {
+  font-size: 0.8rem;
+  color: var(--gray-600);
 }
 
 .price-summary-row {

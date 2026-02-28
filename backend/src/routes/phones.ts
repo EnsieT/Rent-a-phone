@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import db from '../db';
+import { currentPriceInr } from '../lib/quote';
 
 const router = Router();
 
@@ -12,6 +13,12 @@ interface PhoneRow {
   image_url: string;
   available: number;
   created_at: string;
+  msrp_inr: number;
+  age_years: number;
+}
+
+function toResponse(phone: PhoneRow) {
+  return { ...phone, current_price_inr: currentPriceInr(phone.msrp_inr, phone.age_years) };
 }
 
 router.get('/', (req: Request, res: Response): void => {
@@ -28,7 +35,7 @@ router.get('/', (req: Request, res: Response): void => {
   query += ' ORDER BY brand, model';
 
   const phones = db.prepare(query).all() as PhoneRow[];
-  res.json(phones);
+  res.json(phones.map(toResponse));
 });
 
 router.get('/:id', (req: Request, res: Response): void => {
@@ -41,7 +48,7 @@ router.get('/:id', (req: Request, res: Response): void => {
     return;
   }
 
-  res.json(phone);
+  res.json(toResponse(phone));
 });
 
 export default router;

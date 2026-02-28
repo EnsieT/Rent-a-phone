@@ -7,6 +7,7 @@ interface Props {
 
 export default function PhoneCard({ phone }: Props) {
   const isAvailable = phone.available === 1
+  const baseDailyInr = phone.current_price_inr / 400
 
   return (
     <div className="phone-card">
@@ -23,7 +24,8 @@ export default function PhoneCard({ phone }: Props) {
         <div className="phone-card-brand">{phone.brand}</div>
         <div className="phone-card-model">{phone.model}</div>
         <div className="phone-card-price">
-          ${phone.price_per_day.toFixed(2)} <span>/ day</span>
+          ₹{phone.current_price_inr.toLocaleString('en-IN')}
+          <span className="phone-card-daily"> · ₹{baseDailyInr.toFixed(2)}/day</span>
         </div>
       </div>
       <div className="phone-card-footer">
