@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import db from '../db';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { computeQuote } from '../lib/quote';
 
 const router = Router();
 
@@ -10,6 +11,8 @@ interface PhoneRow {
   id: number;
   price_per_day: number;
   available: number;
+  msrp_inr: number;
+  age_years: number;
 }
 
 interface RentalRow {
@@ -95,7 +98,7 @@ router.post('/', (req: AuthRequest, res: Response): void => {
   }
 
   const phone = db
-    .prepare('SELECT id, price_per_day, available FROM phones WHERE id = ?')
+    .prepare('SELECT id, price_per_day, available, msrp_inr, age_years FROM phones WHERE id = ?')
     .get(phoneId) as PhoneRow | undefined;
 
   if (!phone) {
@@ -109,7 +112,16 @@ router.post('/', (req: AuthRequest, res: Response): void => {
   }
 
   const days = daysBetween(startDate, endDate);
-  const total_price = Math.round(days * phone.price_per_day * 100) / 100;
+
+  // Use INR-based pricing with multi-day discount
+  let total_price: number;
+  try {
+    const quote = computeQuote(phone.id, phone.msrp_inr, phone.age_years, days, 'rent');
+    total_price = quote.rent_total_inr;
+  } catch {
+    // Fallback to legacy USD pricing if days out of range or INR data unavailable
+    total_price = Math.round(days * phone.price_per_day * 100) / 100;
+  }
 
   const result = db
     .prepare(`

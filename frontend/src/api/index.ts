@@ -20,6 +20,23 @@ export interface Phone {
   price_per_day: number
   image_url: string
   available: number
+  msrp_inr: number
+  age_years: number
+  current_price_inr: number
+}
+
+export interface Quote {
+  phone_id: number
+  days: number
+  intent: 'rent' | 'buy'
+  current_price_inr: number
+  deposit_inr: number
+  base_daily_inr: number
+  /** Discount as a decimal fraction (0–0.30). */
+  discount_pct: number
+  effective_daily_inr: number
+  rent_total_inr: number
+  grand_total_inr: number
 }
 
 export interface User {
@@ -54,6 +71,9 @@ export const getPhones = (availableOnly?: boolean) =>
   })
 
 export const getPhone = (id: number) => api.get<Phone>(`/phones/${id}`)
+
+export const getQuote = (phoneId: number, days: number, intent: 'rent' | 'buy' = 'rent') =>
+  api.get<Quote>('/quote', { params: { phone_id: phoneId, days, intent } })
 
 export const login = (email: string, password: string) =>
   api.post<AuthResponse>('/auth/login', { email, password })

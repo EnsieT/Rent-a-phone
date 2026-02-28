@@ -3,6 +3,7 @@ import type { Phone } from '../api'
 import { createRental } from '../api'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { calcQuote } from '../lib/quote'
 
 interface Props {
   phone: Phone
@@ -11,6 +12,11 @@ interface Props {
 
 function toDateString(d: Date): string {
   return d.toISOString().split('T')[0]
+}
+
+function calcDays(startDate: string, endDate: string): number {
+  const ms = new Date(endDate).getTime() - new Date(startDate).getTime()
+  return Math.max(0, Math.ceil(ms / 86400000))
 }
 
 export default function RentalModal({ phone, onClose }: Props) {
@@ -25,13 +31,9 @@ export default function RentalModal({ phone, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  function calcDays(): number {
-    const ms = new Date(endDate).getTime() - new Date(startDate).getTime()
-    return Math.max(0, Math.ceil(ms / 86400000))
-  }
-
-  const days = calcDays()
-  const total = days * phone.price_per_day
+  const days = calcDays(startDate, endDate)
+  const { baseDailyInr, discountPct: discount, effectiveDailyInr, rentTotalInr, depositInr, grandTotalInr } =
+    calcQuote(phone.current_price_inr, days)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -99,16 +101,32 @@ export default function RentalModal({ phone, onClose }: Props) {
           {days > 0 && (
             <div className="price-summary">
               <div className="price-summary-row">
-                <span>Price per day</span>
-                <span>${phone.price_per_day.toFixed(2)}</span>
+                <span>Base daily rate</span>
+                <span>₹{baseDailyInr.toFixed(2)}</span>
+              </div>
+              <div className="price-summary-row">
+                <span>Discount ({(discount * 100).toFixed(0)}%)</span>
+                <span>−₹{(baseDailyInr * discount).toFixed(2)}/day</span>
+              </div>
+              <div className="price-summary-row">
+                <span>Effective daily rate</span>
+                <span>₹{effectiveDailyInr.toFixed(2)}</span>
               </div>
               <div className="price-summary-row">
                 <span>Number of days</span>
                 <span>{days}</span>
               </div>
+              <div className="price-summary-row">
+                <span>Rental total</span>
+                <span>₹{rentTotalInr.toFixed(2)}</span>
+              </div>
+              <div className="price-summary-row">
+                <span>Refundable deposit</span>
+                <span>₹{depositInr.toLocaleString('en-IN')}</span>
+              </div>
               <div className="price-summary-total">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>Grand total</span>
+                <span>₹{grandTotalInr.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
           )}

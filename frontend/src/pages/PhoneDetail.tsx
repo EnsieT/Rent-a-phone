@@ -4,6 +4,7 @@ import { getPhone } from '../api'
 import type { Phone } from '../api'
 import RentalModal from '../components/RentalModal'
 import { useAuth } from '../context/AuthContext'
+import { calcQuote } from '../lib/quote'
 
 export default function PhoneDetail() {
   const { id } = useParams<{ id: string }>()
@@ -11,6 +12,7 @@ export default function PhoneDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [days, setDays] = useState(1)
   const { token } = useAuth()
   const navigate = useNavigate()
 
@@ -34,6 +36,7 @@ export default function PhoneDetail() {
     )
 
   const isAvailable = phone.available === 1
+  const quote = calcQuote(phone.current_price_inr, days)
 
   function handleRentClick() {
     if (!token) {
@@ -41,6 +44,11 @@ export default function PhoneDetail() {
     } else {
       setShowModal(true)
     }
+  }
+
+  function handleDaysChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const v = Math.min(100, Math.max(1, Math.round(Number(e.target.value))))
+    setDays(v)
   }
 
   return (
@@ -69,18 +77,63 @@ export default function PhoneDetail() {
           </span>
 
           <div className="phone-detail-price">
-            ${phone.price_per_day.toFixed(2)} <span>/ day</span>
+            ₹{phone.current_price_inr.toLocaleString('en-IN')}
+            <span> (current value)</span>
+          </div>
+          <div className="phone-detail-daily">
+            Base daily rate: <strong>₹{quote.baseDailyInr.toFixed(2)}/day</strong>
           </div>
 
           {phone.description && (
             <p className="phone-detail-description">{phone.description}</p>
           )}
 
+          {/* Live quote calculator */}
+          <div className="quote-calculator">
+            <div className="quote-days-row">
+              <label htmlFor="quote-days">Rental days (1–100)</label>
+              <input
+                id="quote-days"
+                type="number"
+                min={1}
+                max={100}
+                value={days}
+                onChange={handleDaysChange}
+              />
+            </div>
+            <div className="price-summary">
+              <div className="price-summary-row">
+                <span>Base daily rate</span>
+                <span>₹{quote.baseDailyInr.toFixed(2)}</span>
+              </div>
+              <div className="price-summary-row">
+                <span>Discount ({(quote.discountPct * 100).toFixed(0)}%)</span>
+                <span>−₹{(quote.baseDailyInr * quote.discountPct).toFixed(2)}/day</span>
+              </div>
+              <div className="price-summary-row">
+                <span>Effective daily rate</span>
+                <span>₹{quote.effectiveDailyInr.toFixed(2)}</span>
+              </div>
+              <div className="price-summary-row">
+                <span>Rental total ({days} day{days !== 1 ? 's' : ''})</span>
+                <span>₹{quote.rentTotalInr.toFixed(2)}</span>
+              </div>
+              <div className="price-summary-row">
+                <span>Refundable deposit</span>
+                <span>₹{quote.depositInr.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="price-summary-total">
+                <span>Grand total</span>
+                <span>₹{quote.grandTotalInr.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              </div>
+            </div>
+          </div>
+
           <button
             className="btn btn-primary btn-lg"
             onClick={handleRentClick}
             disabled={!isAvailable}
-            style={{ marginTop: '0.5rem' }}
+            style={{ marginTop: '1rem' }}
           >
             {isAvailable ? 'Rent Now' : 'Unavailable'}
           </button>
