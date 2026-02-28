@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400">
+  <defs>
+    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1628"/>
+      <stop offset="100%" stop-color="#0f2040"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="5" width="180" height="390" rx="20" fill="url(#body)"/>
+  <rect x="18" y="50" width="164" height="290" rx="8" fill="url(#screen)"/>
+  <!-- Punch-hole camera -->
+  <circle cx="100" cy="66" r="7" fill="#0a1628"/>
+  <!-- Camera module -->
+  <rect x="20" y="60" width="55" height="70" rx="10" fill="#1a3358"/>
+  <circle cx="38" cy="82" r="12" fill="#0d2240"/>
+  <circle cx="38" cy="82" r="8" fill="#060f1c"/>
+  <circle cx="62" cy="82" r="10" fill="#0d2240"/>
+  <circle cx="62" cy="100" r="8" fill="#0d2240"/>
+  <!-- Screen content -->
+  <text x="100" y="190" text-anchor="middle" fill="white" font-size="13" font-family="Arial,sans-serif" font-weight="bold">Samsung</text>
+  <text x="100" y="208" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10" font-family="Arial,sans-serif">Galaxy A54</text>
+  <!-- Home indicator -->
+  <rect x="75" y="350" width="50" height="4" rx="2" fill="rgba(255,255,255,0.2)"/>
+</svg>

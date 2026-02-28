@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400">
+  <defs>
+    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6B6B75"/>
+      <stop offset="100%" stop-color="#4A4A55"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d0d1a"/>
+      <stop offset="100%" stop-color="#1a0d2e"/>
+    </linearGradient>
+  </defs>
+  <!-- Flat edges (S-series design) -->
+  <rect x="10" y="5" width="180" height="390" rx="12" fill="url(#body)"/>
+  <rect x="18" y="45" width="164" height="305" rx="6" fill="url(#screen)"/>
+  <!-- Punch-hole camera -->
+  <circle cx="100" cy="62" r="8" fill="#1a1a2e"/>
+  <circle cx="100" cy="62" r="5" fill="#0d0d1a"/>
+  <!-- S Pen slot indicator -->
+  <rect x="10" y="340" width="6" height="40" rx="3" fill="#555560"/>
+  <!-- Camera cluster -->
+  <rect x="155" y="55" width="32" height="100" rx="8" fill="#55555f"/>
+  <circle cx="171" cy="75" r="11" fill="#3a3a44"/>
+  <circle cx="171" cy="75" r="7" fill="#1a1a24"/>
+  <circle cx="171" cy="100" r="11" fill="#3a3a44"/>
+  <circle cx="171" cy="100" r="7" fill="#1a1a24"/>
+  <circle cx="171" cy="125" r="9" fill="#3a3a44"/>
+  <circle cx="171" cy="125" r="5" fill="#1a1a24"/>
+  <!-- Screen content -->
+  <text x="95" y="185" text-anchor="middle" fill="white" font-size="12" font-family="Arial,sans-serif" font-weight="bold">Samsung</text>
+  <text x="95" y="203" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9" font-family="Arial,sans-serif">Galaxy S24 Ultra</text>
+</svg>

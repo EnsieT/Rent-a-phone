@@ -1,11 +1,19 @@
 import { useState } from 'react'
-import type { Phone } from '../api'
 import { createRental } from '../api'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { discountPercent, discountedDailyPrice, recordRentalDays } from '../utils/pricing'
+
+interface RentalPhone {
+  id: number
+  brand: string
+  model: string
+  price_per_day: number
+  perDayPrice?: number
+}
 
 interface Props {
-  phone: Phone
+  phone: RentalPhone
   onClose: () => void
 }
 
@@ -25,13 +33,18 @@ export default function RentalModal({ phone, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const basePrice = phone.perDayPrice ?? phone.price_per_day
+
   function calcDays(): number {
     const ms = new Date(endDate).getTime() - new Date(startDate).getTime()
     return Math.max(0, Math.ceil(ms / 86400000))
   }
 
   const days = calcDays()
-  const total = days * phone.price_per_day
+  const discount = discountPercent(days)
+  const effectivePrice = discountedDailyPrice(basePrice, days)
+  const total = effectivePrice * days
+  const savings = (basePrice - effectivePrice) * days
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -47,6 +60,7 @@ export default function RentalModal({ phone, onClose }: Props) {
     setError('')
     try {
       await createRental(phone.id, startDate, endDate)
+      recordRentalDays(phone.id, days)
       onClose()
       navigate('/rentals', { state: { success: true } })
     } catch (err: unknown) {
@@ -99,9 +113,21 @@ export default function RentalModal({ phone, onClose }: Props) {
           {days > 0 && (
             <div className="price-summary">
               <div className="price-summary-row">
-                <span>Price per day</span>
-                <span>${phone.price_per_day.toFixed(2)}</span>
+                <span>Base price per day</span>
+                <span>${basePrice.toFixed(2)}</span>
               </div>
+              {discount > 0 && (
+                <>
+                  <div className="price-summary-row discount-row">
+                    <span>Discount ({discount}%)</span>
+                    <span>-${savings.toFixed(2)}</span>
+                  </div>
+                  <div className="price-summary-row">
+                    <span>Effective price per day</span>
+                    <span>${effectivePrice.toFixed(2)}</span>
+                  </div>
+                </>
+              )}
               <div className="price-summary-row">
                 <span>Number of days</span>
                 <span>{days}</span>

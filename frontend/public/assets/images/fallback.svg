@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400">
+  <rect x="15" y="5" width="170" height="390" rx="22" fill="#374151"/>
+  <rect x="22" y="55" width="156" height="280" rx="6" fill="#4b5563"/>
+  <rect x="80" y="18" width="40" height="14" rx="7" fill="#1f2937"/>
+  <circle cx="100" cy="380" r="12" fill="#4b5563"/>
+  <text x="100" y="185" text-anchor="middle" fill="#9ca3af" font-size="16" font-family="Arial,sans-serif" font-weight="bold">Phone</text>
+  <text x="100" y="207" text-anchor="middle" fill="#6b7280" font-size="11" font-family="Arial,sans-serif">Image unavailable</text>
+</svg>

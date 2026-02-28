@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400">
+  <defs>
+    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#065f46"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020c08"/>
+      <stop offset="100%" stop-color="#061208"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="5" width="180" height="390" rx="22" fill="url(#body)"/>
+  <rect x="18" y="50" width="164" height="290" rx="8" fill="url(#screen)"/>
+  <!-- Hasselblad camera module (circular) -->
+  <circle cx="55" cy="95" r="42" fill="#043d2e"/>
+  <circle cx="55" cy="95" r="35" fill="#021f18"/>
+  <!-- Hasselblad logo area -->
+  <circle cx="55" cy="80" r="18" fill="#0a3d2e"/>
+  <circle cx="55" cy="80" r="13" fill="#021f18"/>
+  <circle cx="55" cy="80" r="7" fill="#043d2e"/>
+  <circle cx="55" cy="110" r="14" fill="#0a3d2e"/>
+  <circle cx="55" cy="110" r="9" fill="#021f18"/>
+  <!-- Punch-hole -->
+  <circle cx="100" cy="65" r="6" fill="#020c08"/>
+  <!-- OnePlus text/logo -->
+  <text x="55" y="140" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="7" font-family="Arial,sans-serif">HASSELBLAD</text>
+  <!-- Screen content -->
+  <text x="118" y="200" text-anchor="middle" fill="white" font-size="12" font-family="Arial,sans-serif" font-weight="bold">OnePlus</text>
+  <text x="118" y="218" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10" font-family="Arial,sans-serif">12</text>
+  <!-- Home indicator -->
+  <rect x="75" y="350" width="50" height="4" rx="2" fill="rgba(255,255,255,0.2)"/>
+</svg>
